@@ -1,0 +1,43 @@
+name: Compilar APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Escribir google-services.json (desde el secreto del repo)
+        run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > app/google-services.json
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Compilar APK de depuración
+        run: gradle assembleDebug --no-daemon
+
+      - name: Subir el APK generado
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-digital-admin-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Crear un Release con el APK (para descargarlo fácil desde el celular)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: NEXUS DIGITAL Admin — build ${{ github.run_number }}
+          files: app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

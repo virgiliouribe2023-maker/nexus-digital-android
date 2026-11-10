@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">NEXUS DIGITAL Admin</string>
+    <!-- Cambia esta URL si tu dominio o ruta de admin es distinta. -->
+    <string name="admin_url">https://nexus-digital.com.mx/online/admin/</string>
+</resources>

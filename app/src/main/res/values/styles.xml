@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.NexusDigitalAdmin" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#00E5FF</item>
+        <item name="colorPrimaryDark">#0B0E14</item>
+        <item name="colorAccent">#FF2BD6</item>
+        <item name="android:windowBackground">#0B0E14</item>
+    </style>
+</resources>
