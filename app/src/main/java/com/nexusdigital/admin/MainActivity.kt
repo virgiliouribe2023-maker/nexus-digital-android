@@ -2,8 +2,13 @@ package com.nexusdigital.admin
 
 import android.os.Bundle
 import android.webkit.CookieManager
+import android.webkit.JsPromptResult
+import android.webkit.JsResult
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.firebase.messaging.FirebaseMessaging
@@ -39,6 +44,48 @@ class MainActivity : AppCompatActivity() {
                 super.onPageFinished(view, url)
                 swipeRefresh.isRefreshing = false
                 enviarTokenSiHayUno()
+            }
+        }
+
+        // Sin esto, los confirm()/alert()/prompt() de JavaScript (como los "¿Eliminar...?"
+        // de pedidos, chats, devoluciones, etc.) NO se muestran dentro del WebView y el
+        // botón parece no hacer nada. Aquí los mostramos como diálogos nativos de Android.
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
+                AlertDialog.Builder(this@MainActivity)
+                    .setMessage(message)
+                    .setPositiveButton("Aceptar") { _, _ -> result?.confirm() }
+                    .setOnCancelListener { result?.cancel() }
+                    .setCancelable(false)
+                    .show()
+                return true
+            }
+
+            override fun onJsConfirm(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
+                AlertDialog.Builder(this@MainActivity)
+                    .setMessage(message)
+                    .setPositiveButton("Aceptar") { _, _ -> result?.confirm() }
+                    .setNegativeButton("Cancelar") { _, _ -> result?.cancel() }
+                    .setOnCancelListener { result?.cancel() }
+                    .setCancelable(true)
+                    .show()
+                return true
+            }
+
+            override fun onJsPrompt(
+                view: WebView?, url: String?, message: String?, defaultValue: String?, result: JsPromptResult?
+            ): Boolean {
+                val campoTexto = EditText(this@MainActivity)
+                campoTexto.setText(defaultValue)
+                AlertDialog.Builder(this@MainActivity)
+                    .setMessage(message)
+                    .setView(campoTexto)
+                    .setPositiveButton("Aceptar") { _, _ -> result?.confirm(campoTexto.text.toString()) }
+                    .setNegativeButton("Cancelar") { _, _ -> result?.cancel() }
+                    .setOnCancelListener { result?.cancel() }
+                    .setCancelable(true)
+                    .show()
+                return true
             }
         }
 
