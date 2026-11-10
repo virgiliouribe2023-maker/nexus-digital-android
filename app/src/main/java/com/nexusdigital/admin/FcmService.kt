@@ -1,11 +1,9 @@
 package com.nexusdigital.admin
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.media.RingtoneManager
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -32,20 +30,10 @@ class FcmService : FirebaseMessagingService() {
     }
 
     private fun mostrarNotificacion(titulo: String, cuerpo: String, url: String?) {
+        // El canal "chat_nexus" ya se crea (con su sonido y vibración) en NexusApp.onCreate(),
+        // antes de que llegue cualquier notificación — aquí solo lo usamos.
         val canalId = "chat_nexus"
         val administrador = getSystemService(NotificationManager::class.java)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val canal = NotificationChannel(
-                canalId,
-                "Chat en vivo — NEXUS DIGITAL",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            canal.enableVibration(true)
-            canal.vibrationPattern = longArrayOf(0, 300, 150, 300)
-            canal.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), null)
-            administrador.createNotificationChannel(canal)
-        }
 
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -64,6 +52,7 @@ class FcmService : FirebaseMessagingService() {
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setVibrate(longArrayOf(0, 300, 150, 300))
+            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)) // ignorado en Android 8+ (manda el canal), usado en versiones viejas
             .build()
 
         administrador.notify(Random.nextInt(), notificacion)
