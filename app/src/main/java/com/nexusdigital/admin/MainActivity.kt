@@ -44,6 +44,9 @@ class MainActivity : AppCompatActivity() {
                 super.onPageFinished(view, url)
                 swipeRefresh.isRefreshing = false
                 enviarTokenSiHayUno()
+                // Fuerza a que la cookie de "recordar sesión" (y las demás) se guarden ya
+                // en disco, para que sigan ahí aunque se cierre la app o se reinicie el celular.
+                CookieManager.getInstance().flush()
             }
         }
 
